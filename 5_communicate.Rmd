@@ -1,0 +1,161 @@
+
+class: inverse, center, middle
+
+# Communicate
+---
+
+## R Markdown
+
+R Markdown provides a framework combining code, its results, and text. R Markdown documents are fully reproducible and support dozens of output formats (e.g. PDFs, Word files, Powerpoint, HTML, etc).
+
+This is an R Markdown file, a plain text file that has the extension `.Rmd`
+
+.pull-left[
+```{r echo = FALSE, comment = ""}
+cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample1.Rmd")))
+```
+]
+
+.pull-right[
+```{r echo = FALSE, comment = ""}
+cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample2.Rmd")))
+```
+]
+
+---
+It contains three important types of content:
+
+1.  A **header** surrounded by `---`  
+2.  **Chunks** of R code surrounded by ```` ``` ````  
+3.  Text mixed with inline code ``` `r ` ```  
+
+.pull-left[
+```{r echo = FALSE, comment = ""}
+cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample1.Rmd")))
+```
+]
+
+.pull-right[
+```{r echo = FALSE, comment = ""}
+cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample2.Rmd")))
+```
+]
+
+---
+### The output is:
+
+```{r echo = FALSE, child = here::here("rmd", "presentation", "rmarkdown", "sample.Rmd")}
+```
+
+---
+### Parameters
+
+* R Markdown documents can include one or more parameters. 
+
+* Parameters are useful when you want to regenerate the same report with different inputs
+
+* This is very hadny when you want to generate site reports (i.e. same reports for different sites)
+
+.pull-left[
+```{r echo = FALSE, comment = ""}
+cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample1_params.Rmd")))
+```
+]
+
+.pull-right[
+```{r echo = FALSE, comment = ""}
+cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample2_params.Rmd")))
+```
+]
+
+---
+### Making several reports
+```{r, echo = TRUE, eval = FALSE}
+library(knitr)
+
+render(input = "path_to_the_Rmd_file",
+       params = "list_of_the_parameters_to_use",
+       output_format = "output_fromat (e.g. pdf_document)",
+       output_file = "the_name_of_the_output_file",
+       ...)
+
+make_my_report <- function(SiteID) {
+  render(input = "report.Rmd",
+         params = list(SiteID = SiteID),
+         output_format = "pdf_document"
+         output_file = glue::glue("report_{SiteID}_{Sys.Date()}.pdf"))
+}
+
+input_df <- data.frame(SiteID = c("group_1", "group_2", "etc"))
+
+purrr::pwalk(input_df, make_my_report)
+```
+
+---
+### R Markdown formats
+
+* HTML
+* PDF
+* WORD
+* RTF
+* POWEPOINT
+* HTML Dashboards (requires Flexdashboard)
+* Interactive Dashboards (requires Shiny)
+* Websites (needs a little additional infrastructure)
+* ETC
+
+---
+## Interactive outputs and animation
+
+```{r}
+DT::datatable(head(registryr::fake_data), fillContainer = FALSE, options = list(pageLength = 4))
+```
+
+---
+```{r}
+graph <-
+  registryr::fake_data %>%
+  group_by(site_id) %>%
+  summarise(mortality_rate = sum(dead) / n()) %>%
+  mutate(n = seq(100, 2000, length.out = 20)) %>%
+  ggplot(aes(x = n, y = mortality_rate)) +
+  geom_point() +
+  theme_bw()
+
+plotly::ggplotly(graph)
+```
+
+---
+```{r}
+p <-
+  registryr::fake_data %>%
+  group_by(site_id) %>%
+  summarise(mortality_rate = sum(dead) / n()) %>%
+  mutate(year = seq(2001, 2020)) %>%
+  ggplot(aes(x = year, y = mortality_rate)) +
+  geom_line() +
+  theme_bw()
+
+p
+```
+
+---
+```{r}
+p + gganimate::transition_reveal(year)
+```
+
+---
+## R Shiny
+Shiny is an R package that makes it possible to build interactive web apps straight from R.
+
+```{r, echo = FALSE}
+knitr::include_app("https://vac-lshtm.shinyapps.io/ncov_tracker",
+                   height = "500px")
+
+```
+
+---
+```{r, echo = FALSE}
+knitr::include_app("https://monash-corrp.shinyapps.io/DCQR_NNT_dashboard",
+                   height = "600px")
+```

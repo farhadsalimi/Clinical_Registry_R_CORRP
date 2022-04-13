@@ -1,0 +1,63 @@
+class: inverse, center, middle
+
+# Import
+---
+
+## Flat files (csv, xlsx, etc)
+### CSV files
+```{r, eval = FALSE, echo = TRUE}
+library(readr)
+read_csv(file = "path_to_the_file")
+```
+
+### EXCEL files
+```{r, eval = FALSE, echo = TRUE}
+library(readxl)
+read_excel(path = "path_to_the_file",
+           sheet = "sheet_number",
+           range = "typical_EXCEL_range (e.g. B3:D87)")
+```
+
+---
+## Database
+### REDCap
+```{r, eval = FALSE, echo = TRUE}
+library(REDCapR)
+redcap_read(redcap_uri = "URI_of_the_REDCap_project",
+            token = "the_user_specific_token")
+```
+
+### SQL, Oracle, MySQL, PostgreSQL, SQLite 
+```{r, eval = FALSE, echo = TRUE}
+library(DBI)
+library(odbc)
+con <- dbConnect(odbc(), "DSN name")
+
+library(dbplyr)
+q1 <- tbl(con, "bank") %>%
+  group_by(month_idx, year, month) %>%
+  summarise(
+    subscribe = sum(ifelse(term_deposit == "yes", 1, 0)),
+    total = n())
+
+show_query(q1)
+```
+
+---
+## Formats Used by other Statistical Packages
+```{r, eval = FALSE}
+library(haven)
+
+# SAS
+read_sas("mtcars.sas7bdat")
+write_sas(mtcars, "mtcars.sas7bdat")
+
+# SPSS
+read_sav("mtcars.sav")
+write_sav(mtcars, "mtcars.sav")
+
+# Stata
+read_dta("mtcars.dta")
+write_dta(mtcars, "mtcars.dta")
+```
+

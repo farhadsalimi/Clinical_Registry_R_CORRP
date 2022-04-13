@@ -1,0 +1,139 @@
+class: inverse, center, middle
+
+# Tidy data
+---
+
+## Validate
+```{r}
+data(cars)
+head(cars)
+
+library(validate)
+rules <- validator(speed >= 0, 
+                   dist >= 0,
+                   speed/dist <= 1.5)
+
+out <- confront(cars, rules)
+summary(out)
+```
+
+---
+```{r}
+violating(cars, out)
+```
+
+---
+## Clean data
+*This section has been taken from: Grolemund, G., & Wickham, H. (2017). R for Data Science. O’Reilly Media.*
+```{r}
+library(tidyr)
+
+head(who[,1:10])
+```
+
+WHO: A subset of data from the World Health Organization Global Tuberculosis Report. It is a data frame with 7,240 rows and the columns: 1) `country`: Country name 2)`iso2`, `iso3`: 2 & 3 letter ISO country codes 3) `year`:Year
+
+---
+```{r}
+head(who[,5:12])
+```
+
+ 4) `new_sp_m014` - `new_rel_f65`: Counts of new TB cases recorded by group. Column names encode three variables that describe the group:    
+ 
+  * The first three letters of each column denote whether the column contains `new` or `old` cases of TB. In this dataset, each column contains new cases.
+  * The next two letters describe the type of TB:
+     * `rel` stands for cases of relapse
+     * `ep` stands for cases of extrapulmonary TB
+     * `sn` stands for cases of pulmonary TB that could not be diagnosed by a pulmonary smear (smear negative)
+     * `sp` stands for cases of pulmonary TB that could be diagnosed by a pulmonary smear (smear positive)
+     * The sixth letter gives the sex of TB patients. The dataset groups cases by males (`m`) and females (`f`).
+---
+```{r}
+who1 <- 
+  who %>% 
+  pivot_longer(
+    cols = -c(country, iso2, iso3, year), 
+    names_to = "key", 
+    values_to = "cases", 
+    values_drop_na = TRUE
+  )
+
+who1
+
+```
+
+---
+.pull-left[
+```{r}
+library(dplyr)
+who1 %>%
+  count(key)
+```
+]
+.pull-left[
+```{r}
+who1 %>%
+  count(key) %>%
+  arrange(n)
+```
+]
+
+---
+.pull-left[
+```{r}
+library(stringr)
+who2 <- 
+  who1 %>% 
+  mutate(key = str_replace(key,
+                           "newrel", 
+                           "new_rel"))
+
+who2 %>%
+  count(key) %>%
+  arrange(n)
+```
+]
+
+.pull-right[
+```{r}
+who3 <- 
+  who2 %>% 
+  separate(key, 
+           c("new", "type", "sexage"), 
+           sep = "_") %>%
+  select(-iso2, -iso3)
+
+who3
+```
+]
+
+---
+```{r}
+who3 %>%
+  count(new)
+```
+
+```{r}
+who4 <- 
+  who3 %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+
+who4
+```
+
+---
+```{r}
+who %>%
+  pivot_longer(
+    cols = new_sp_m014:newrel_f65, 
+    names_to = "key", 
+    values_to = "cases", 
+    values_drop_na = TRUE
+  ) %>% 
+  mutate(
+    key = stringr::str_replace(key, "newrel", "new_rel")
+  ) %>%
+  separate(key, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+```

@@ -1,0 +1,25 @@
+class: inverse, center, middle
+
+# Why R?
+
+---
+
+### Large user community
+There are currently more than **two million** users of R around the world.
+As of 18 March 2022, there were **19,013** packages available on **CRAN** and there are thousands more housed on other repositories platforms such as GitHub. Most (if not all!) statistical methods are likely to have at least one package that is freely available.
+
+### Integrated tool for sharing results
+There are tools available in R that let you share and communicate the results. **R Markdown** facilitates making reports in various formats directly from R. You can also make interactive dashboards and web apps using **RShiny**.
+
+### Efficient Scalability
+R can be scaled so it can be used across a large team or an organisation. It integrates seamlessly with popular data science technologies such as **PowerBI**, **Python**, and **Git**.
+ 
+### Great Graphics
+R can be used to develop high quality static graphics as well as animations and interactive graphics.
+
+---
+
+### Machine Learning and Big Data
+R supports numerous methods used for the development of predictive models and can be seamlessly intergrated with large-scale data processing tools such as **Apache Spark**.
+
+### R is free!

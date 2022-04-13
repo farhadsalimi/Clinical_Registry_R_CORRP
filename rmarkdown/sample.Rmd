@@ -1,0 +1,59 @@
+---
+title: "Report"
+date: 2020-01-01
+output: html_document
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(registryr)
+```
+
+We have data about `r registryr::fake_data %>% nrow()` participants.
+Out of which, 
+`r registryr::fake_data %>% dplyr::filter(sex_cat == "Male") %>% nrow()`
+are males. 
+The age distribution of the participants by severity 
+is shown below:
+
+```{r, echo = FALSE}
+mortality_summary <-
+  registryr::fake_data %>%
+  group_by(site_id) %>%
+  summarise(n = n(),
+            mortality_rate = sum(dead) / n)
+
+mortality_summary %>%
+  slice_max(mortality_rate, n = 3) %>%
+  kable()
+```
+
+```{r, echo = FALSE, fig.height = 2.5}
+bm <-
+  fake_data %>%
+  summarise(benchmark = sum(dead) / n()) %>%
+  pull(benchmark)
+
+n_sites <- fake_data %>% pull(site_id) %>% n_distinct()
+
+mortality_summary %>%
+  mutate(n = seq(100, 2000, length.out = n_sites)) %>%
+  ggplot(aes(x = n, y = mortality_rate)) +
+  stat_funnelcount(fill = "dark blue",
+              alpha = 0.5,
+              ci_limits = 0.95)+
+  stat_funnelcount(fill = "light blue",
+              alpha = 0.5,
+              ci_limits = 0.998) +
+  scale_y_continuous(expand = c(0, 0),
+                     labels = scales::percent_format()
+                     ) +
+  coord_cartesian(ylim = c(0.2, 0.4),
+                  xlim = c(0, NA)) +
+  geom_point() +
+  theme_bw()
+```
+

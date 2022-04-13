@@ -1,0 +1,8 @@
+class: inverse, center, middle
+
+# Workflow
+---
+```{r, fig.cap = "Grolemund, G., & Wickham, H. (2017). R for Data Science. O’Reilly Media.", echo = FALSE}
+knitr::include_graphics("r4ds_data-science.png")
+```
+

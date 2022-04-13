@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Clinical Registry Reporting</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Farhad Salimi" />
+    <meta name="date" content="2022-04-13" />
+    <script src="registry_data_analysis_R_files/header-attrs/header-attrs.js"></script>
+    <script src="registry_data_analysis_R_files/htmlwidgets/htmlwidgets.js"></script>
+    <link href="registry_data_analysis_R_files/datatables-css/datatables-crosstalk.css" rel="stylesheet" />
+    <script src="registry_data_analysis_R_files/datatables-binding/datatables.js"></script>
+    <script src="registry_data_analysis_R_files/jquery/jquery-3.6.0.min.js"></script>
+    <link href="registry_data_analysis_R_files/dt-core/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="registry_data_analysis_R_files/dt-core/css/jquery.dataTables.extra.css" rel="stylesheet" />
+    <script src="registry_data_analysis_R_files/dt-core/js/jquery.dataTables.min.js"></script>
+    <link href="registry_data_analysis_R_files/crosstalk/css/crosstalk.min.css" rel="stylesheet" />
+    <script src="registry_data_analysis_R_files/crosstalk/js/crosstalk.min.js"></script>
+    <script src="registry_data_analysis_R_files/plotly-binding/plotly.js"></script>
+    <script src="registry_data_analysis_R_files/typedarray/typedarray.min.js"></script>
+    <link href="registry_data_analysis_R_files/plotly-htmlwidgets-css/plotly-htmlwidgets.css" rel="stylesheet" />
+    <script src="registry_data_analysis_R_files/plotly-main/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Clinical Registry Reporting
+## using R
+### Farhad Salimi
+### Clinical Outcomes Data Reporting and Research Program (CORRP)
+### 13 April 2022
+
+---
+
+
+
+
+
+
+
+class: inverse, center, middle
+
+# Why R?
+
+---
+
+### Large user community
+There are currently more than **two million** users of R around the world.
+As of 18 March 2022, there were **19,013** packages available on **CRAN** and there are thousands more housed on other repositories platforms such as GitHub. Most (if not all!) statistical methods are likely to have at least one package that is freely available.
+
+### Integrated tool for sharing results
+There are tools available in R that let you share and communicate the results. **R Markdown** facilitates making reports in various formats directly from R. You can also make interactive dashboards and web apps using **RShiny**.
+
+### Efficient Scalability
+R can be scaled so it can be used across a large team or an organisation. It integrates seamlessly with popular data science technologies such as **PowerBI**, **Python**, and **Git**.
+ 
+### Great Graphics
+R can be used to develop high quality static graphics as well as animations and interactive graphics.
+
+---
+
+### Machine Learning and Big Data
+R supports numerous methods used for the development of predictive models and can be seamlessly intergrated with large-scale data processing tools such as **Apache Spark**.
+
+### R is free!
+
+---
+
+
+class: inverse, center, middle
+
+# Workflow
+---
+&lt;div class="figure"&gt;
+&lt;img src="r4ds_data-science.png" alt="Grolemund, G., &amp;amp; Wickham, H. (2017). R for Data Science. O’Reilly Media." width="100%" /&gt;
+&lt;p class="caption"&gt;Grolemund, G., &amp; Wickham, H. (2017). R for Data Science. O’Reilly Media.&lt;/p&gt;
+&lt;/div&gt;
+
+
+
+---
+
+
+class: inverse, center, middle
+
+# Import
+---
+
+## Flat files (csv, xlsx, etc)
+### CSV files
+
+```r
+library(readr)
+read_csv(file = "path_to_the_file")
+```
+
+### EXCEL files
+
+```r
+library(readxl)
+read_excel(path = "path_to_the_file",
+           sheet = "sheet_number",
+           range = "typical_EXCEL_range (e.g. B3:D87)")
+```
+
+---
+## Database
+### REDCap
+
+```r
+library(REDCapR)
+redcap_read(redcap_uri = "URI_of_the_REDCap_project",
+            token = "the_user_specific_token")
+```
+
+### SQL, Oracle, MySQL, PostgreSQL, SQLite 
+
+```r
+library(DBI)
+library(odbc)
+con &lt;- dbConnect(odbc(), "DSN name")
+
+library(dbplyr)
+q1 &lt;- tbl(con, "bank") %&gt;%
+  group_by(month_idx, year, month) %&gt;%
+  summarise(
+    subscribe = sum(ifelse(term_deposit == "yes", 1, 0)),
+    total = n())
+
+show_query(q1)
+```
+
+---
+## Formats Used by other Statistical Packages
+
+```r
+library(haven)
+
+# SAS
+read_sas("mtcars.sas7bdat")
+write_sas(mtcars, "mtcars.sas7bdat")
+
+# SPSS
+read_sav("mtcars.sav")
+write_sav(mtcars, "mtcars.sav")
+
+# Stata
+read_dta("mtcars.dta")
+write_dta(mtcars, "mtcars.dta")
+```
+
+
+
+---
+
+
+
+
+
+
+class: inverse, center, middle
+
+# Communicate
+---
+
+## R Markdown
+
+R Markdown provides a framework combining code, its results, and text. R Markdown documents are fully reproducible and support dozens of output formats (e.g. PDFs, Word files, Powerpoint, HTML, etc).
+
+This is an R Markdown file, a plain text file that has the extension `.Rmd`
+
+.pull-left[
+
+````
+---
+title: "Report"
+date: 2020-01-01
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(registryr)
+```
+````
+]
+
+.pull-right[
+
+````
+We have data about `r registryr::fake_data %&gt;% nrow()` participants.
+Out of which, 
+`r registryr::fake_data %&gt;% dplyr::filter(sex_cat == "Male") %&gt;% nrow()`
+are males. 
+The age distribution of the participants by severity 
+is shown below:
+
+```{r, echo = FALSE}
+mortality_summary &lt;-
+  registryr::fake_data %&gt;%
+  group_by(site_id) %&gt;%
+  summarise(n = n(),
+            mortality_rate = sum(dead) / n)
+
+mortality_summary %&gt;%
+  slice_max(mortality_rate, n = 3) %&gt;%
+  kable()
+```
+````
+]
+
+---
+It contains three important types of content:
+
+1.  A **header** surrounded by `---`  
+2.  **Chunks** of R code surrounded by ```` ``` ````  
+3.  Text mixed with inline code ``` `r ` ```  
+
+.pull-left[
+
+````
+---
+title: "Report"
+date: 2020-01-01
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(registryr)
+```
+````
+]
+
+.pull-right[
+
+````
+We have data about `r registryr::fake_data %&gt;% nrow()` participants.
+Out of which, 
+`r registryr::fake_data %&gt;% dplyr::filter(sex_cat == "Male") %&gt;% nrow()`
+are males. 
+The age distribution of the participants by severity 
+is shown below:
+
+```{r, echo = FALSE}
+mortality_summary &lt;-
+  registryr::fake_data %&gt;%
+  group_by(site_id) %&gt;%
+  summarise(n = n(),
+            mortality_rate = sum(dead) / n)
+
+mortality_summary %&gt;%
+  slice_max(mortality_rate, n = 3) %&gt;%
+  kable()
+```
+````
+]
+
+---
+### The output is:
+
+
+
+
+
+
+
+
+
+
+We have data about 40000 participants.
+Out of which, 
+19941
+are males. 
+The age distribution of the participants by severity 
+is shown below:
+
+
+| site_id|    n| mortality_rate|
+|-------:|----:|--------------:|
+|      19| 2000|         0.3320|
+|       8| 2000|         0.3285|
+|      13| 2000|         0.3255|
+
+&lt;img src="registry_data_analysis_R_files/figure-html/unnamed-chunk-29-1.png" width="100%" /&gt;
+
+
+---
+### Parameters
+
+* R Markdown documents can include one or more parameters. 
+
+* Parameters are useful when you want to regenerate the same report with different inputs
+
+* This is very hadny when you want to generate site reports (i.e. same reports for different sites)
+
+.pull-left[
+
+````
+---
+title: "Report"
+date: 2020-01-01
+output: html_document
+params:
+  SiteID: A
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(registryr)
+```
+````
+]
+
+.pull-right[
+
+````
+We have data about `r registryr::fake_data %&gt;% nrow()` participants.
+Out of which, 
+`r registryr::fake_data %&gt;% dplyr::filter(sex_cat == "Male") %&gt;% nrow()`
+are males. 
+The age distribution of the participants by severity 
+is shown below:
+
+```{r, echo = FALSE}
+mortality_summary &lt;-
+  registryr::fake_data %&gt;%
+  dplyr::filter(site_id == params$SiteID)
+  group_by(site_id) %&gt;%
+  summarise(n = n(),
+            mortality_rate = sum(dead) / n)
+
+mortality_summary %&gt;%
+  slice_max(mortality_rate, n = 3) %&gt;%
+  kable()
+```
+````
+]
+
+---
+### Making several reports
+
+```r
+library(knitr)
+
+render(input = "path_to_the_Rmd_file",
+       params = "list_of_the_parameters_to_use",
+       output_format = "output_fromat (e.g. pdf_document)",
+       output_file = "the_name_of_the_output_file",
+       ...)
+
+make_my_report &lt;- function(SiteID) {
+  render(input = "report.Rmd",
+         params = list(SiteID = SiteID),
+         output_format = "pdf_document"
+         output_file = glue::glue("report_{SiteID}_{Sys.Date()}.pdf"))
+}
+
+input_df &lt;- data.frame(SiteID = c("group_1", "group_2", "etc"))
+
+purrr::pwalk(input_df, make_my_report)
+```
+
+---
+### R Markdown formats
+
+* HTML
+* PDF
+* WORD
+* RTF
+* POWEPOINT
+* HTML Dashboards (requires Flexdashboard)
+* Interactive Dashboards (requires Shiny)
+* Websites (needs a little additional infrastructure)
+* ETC
+
+---
+## Interactive outputs and animation
+
+
+```r
+DT::datatable(head(registryr::fake_data), fillContainer = FALSE, options = list(pageLength = 4))
+```
+
+<div id="htmlwidget-20173c4067664d47853d" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-20173c4067664d47853d">{"x":{"filter":"none","vertical":false,"fillContainer":false,"data":[["1","2","3","4","5","6"],[1,2,3,4,5,6],[1,1,1,1,1,1],[1,1,1,1,1,0],["Male","Male","Male","Male","Male","Female"],[56,49,39,49,54,54],[0.354,0.326,0.286,0.326,0.346,0.316],[45.6,41.4,35.4,41.4,44.4,42.4],[43.8257261178133,44.0462366300342,30.5526757802279,37.2659187164089,40.9415797025062,42.1507288146372],[1,1,0,1,0,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>patient_id<\/th>\n      <th>site_id<\/th>\n      <th>sex<\/th>\n      <th>sex_cat<\/th>\n      <th>age<\/th>\n      <th>death_prob<\/th>\n      <th>mean_los<\/th>\n      <th>los<\/th>\n      <th>dead<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":4,"columnDefs":[{"className":"dt-right","targets":[1,2,3,5,6,7,8,9]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[4,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+
+---
+
+```r
+graph &lt;-
+  registryr::fake_data %&gt;%
+  group_by(site_id) %&gt;%
+  summarise(mortality_rate = sum(dead) / n()) %&gt;%
+  mutate(n = seq(100, 2000, length.out = 20)) %&gt;%
+  ggplot(aes(x = n, y = mortality_rate)) +
+  geom_point() +
+  theme_bw()
+
+plotly::ggplotly(graph)
+```
+
+<div id="htmlwidget-db7ec78881b8fef0e80a" style="width:100%;height:252px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-db7ec78881b8fef0e80a">{"x":{"data":[{"x":[100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000],"y":[0.321,0.3085,0.3165,0.3175,0.2985,0.312,0.3135,0.3285,0.2965,0.316,0.307,0.3215,0.3255,0.3155,0.32,0.317,0.319,0.297,0.332,0.318],"text":["n:  100<br />mortality_rate: 0.3210","n:  200<br />mortality_rate: 0.3085","n:  300<br />mortality_rate: 0.3165","n:  400<br />mortality_rate: 0.3175","n:  500<br />mortality_rate: 0.2985","n:  600<br />mortality_rate: 0.3120","n:  700<br />mortality_rate: 0.3135","n:  800<br />mortality_rate: 0.3285","n:  900<br />mortality_rate: 0.2965","n: 1000<br />mortality_rate: 0.3160","n: 1100<br />mortality_rate: 0.3070","n: 1200<br />mortality_rate: 0.3215","n: 1300<br />mortality_rate: 0.3255","n: 1400<br />mortality_rate: 0.3155","n: 1500<br />mortality_rate: 0.3200","n: 1600<br />mortality_rate: 0.3170","n: 1700<br />mortality_rate: 0.3190","n: 1800<br />mortality_rate: 0.2970","n: 1900<br />mortality_rate: 0.3320","n: 2000<br />mortality_rate: 0.3180"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":34.7866927592955,"r":7.30593607305936,"b":48.7410306588389,"l":48.9497716894977},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[5,2095],"tickmode":"array","ticktext":["500","1000","1500","2000"],"tickvals":[500,1000,1500,2000],"categoryorder":"array","categoryarray":["500","1000","1500","2000"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"n","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.294725,0.333775],"tickmode":"array","ticktext":["0.30","0.31","0.32","0.33"],"tickvals":[0.3,0.31,0.32,0.33],"categoryorder":"array","categoryarray":["0.30","0.31","0.32","0.33"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"mortality_rate","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.66417600664176,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"10ab20ac3e18":{"x":{},"y":{},"type":"scatter"}},"cur_data":"10ab20ac3e18","visdat":{"10ab20ac3e18":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+
+---
+
+```r
+p &lt;-
+  registryr::fake_data %&gt;%
+  group_by(site_id) %&gt;%
+  summarise(mortality_rate = sum(dead) / n()) %&gt;%
+  mutate(year = seq(2001, 2020)) %&gt;%
+  ggplot(aes(x = year, y = mortality_rate)) +
+  geom_line() +
+  theme_bw()
+
+p
+```
+
+&lt;img src="registry_data_analysis_R_files/figure-html/unnamed-chunk-23-1.png" width="100%" /&gt;
+
+---
+
+```r
+p + gganimate::transition_reveal(year)
+```
+
+&lt;img src="registry_data_analysis_R_files/figure-html/unnamed-chunk-24-1.gif" width="100%" /&gt;
+
+---
+## R Shiny
+Shiny is an R package that makes it possible to build interactive web apps straight from R.
+
+&lt;iframe src="https://vac-lshtm.shinyapps.io/ncov_tracker?showcase=0" width="100%" height="500px" data-external="1"&gt;&lt;/iframe&gt;
+
+---
+&lt;iframe src="https://monash-corrp.shinyapps.io/DCQR_NNT_dashboard?showcase=0" width="100%" height="600px" data-external="1"&gt;&lt;/iframe&gt;
+
+---
+
+class: inverse, center, middle
+
+# Reproducible Analysis 
+---
+
+## Internal Packages
+
+* An internal packages wraps most common analysis tasks in functions
+  * Improve an organisation’s code quality
+  * Promote reproducible analysis frameworks
+  * Enhance knowledge management
+  
+
+```r
+devtools::install_github('farhadsalimi/registryr')
+
+library(registryr)
+
+registryr::risk_adjust()
+
+registryr::create_adnet_report()
+
+registryr::population_pyramid()
+```
+  
+---
+
+## Git and Github
+.pull-left[
+&lt;img src="http://www.phdcomics.com/comics/archive/phd101212s.gif" width="80%" /&gt;
+]
+
+.pull-right[
+
+* Git is a version control system, tracks changes to your code and shares those changes with others
+* Git can be combined with GitHub, a website that allows you to share/back up your code with
+
+&lt;img src="https://r-bio.github.io/img/rstudio-commit.png" width="60%" /&gt;
+
+&lt;img src="https://flight-manual.atom.io/using-atom/images/github-stage.png" width="60%" /&gt;
+
+
+
+]
+
+
+
+
+
+
+
+---
+class: center, middle
+
+# Thanks!
+
+Slides were created via the R packages:
+
+[**xaringan**](https://github.com/yihui/xaringan)&lt;br&gt;
+[gadenbuie/xaringanthemer](https://github.com/gadenbuie/xaringanthemer)
+
+**No PowerPoint or Keynote was harmed during the making of these slides!!**
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

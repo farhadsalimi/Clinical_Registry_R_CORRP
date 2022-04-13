@@ -1,0 +1,55 @@
+class: inverse, center, middle
+
+# Reproducible Analysis 
+---
+
+## Internal Packages
+
+* An internal packages wraps most common analysis tasks in functions
+  * Improve an organisation’s code quality
+  * Promote reproducible analysis frameworks
+  * Enhance knowledge management
+  
+```{r, eval = FALSE}
+devtools::install_github('farhadsalimi/registryr')
+
+library(registryr)
+
+registryr::risk_adjust()
+
+registryr::create_adnet_report()
+
+registryr::population_pyramid()
+```
+  
+---
+
+## Git and Github
+.pull-left[
+```{r, echo = FALSE, out.width = "80%",}
+knitr::include_graphics("http://www.phdcomics.com/comics/archive/phd101212s.gif")
+```
+]
+
+.pull-right[
+
+* Git is a version control system, tracks changes to your code and shares those changes with others
+* Git can be combined with GitHub, a website that allows you to share/back up your code with
+
+```{r, echo = FALSE, out.width = "60%",}
+knitr::include_graphics("https://r-bio.github.io/img/rstudio-commit.png")
+```
+
+```{r, echo = FALSE, out.width = "60%",}
+knitr::include_graphics("https://flight-manual.atom.io/using-atom/images/github-stage.png")
+```
+
+
+
+]
+
+
+
+
+
+

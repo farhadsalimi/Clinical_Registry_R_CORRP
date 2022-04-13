@@ -1,0 +1,15 @@
+---
+title: "Report"
+date: 2020-01-01
+output: html_document
+params:
+  SiteID: A
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(registryr)
+```
