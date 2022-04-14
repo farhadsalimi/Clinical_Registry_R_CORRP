@@ -2,7 +2,7 @@
 title: "Clinical Registry Reporting"
 subtitle: "using R"  
 author: 
-  - "Farhad Salimis"
+  - "Farhad Salimi"
 institute: "Clinical Outcomes Data Reporting and Research Program (CORRP)"
 date: "13 April 2022"
 params:
