@@ -1,6 +1,8 @@
-We have data about `r registryr::fake_data %>% nrow()` participants.
+We have data about 
+`r registryr::fake_data %>% nrow()` participants.
 Out of which, 
-`r registryr::fake_data %>% dplyr::filter(sex_cat == "Male") %>% nrow()`
+`r registryr::fake_data %>% 
+dplyr::filter(sex_cat == "Male") %>% nrow()`
 are males. 
 The age distribution of the participants by severity 
 is shown below:

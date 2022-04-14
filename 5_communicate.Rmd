@@ -4,6 +4,13 @@ class: inverse, center, middle
 # Communicate
 ---
 
+```{r, echo = FALSE}
+library(tidyverse)
+library(gapminder)
+library(gganimate)
+
+```
+
 ## R Markdown
 
 R Markdown provides a framework combining code, its results, and text. R Markdown documents are fully reproducible and support dozens of output formats (e.g. PDFs, Word files, Powerpoint, HTML, etc).
@@ -12,13 +19,13 @@ This is an R Markdown file, a plain text file that has the extension `.Rmd`
 
 .pull-left[
 ```{r echo = FALSE, comment = ""}
-cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample1.Rmd")))
+cat(htmltools::includeText(here::here( "rmarkdown", "sample1.Rmd")))
 ```
 ]
 
 .pull-right[
 ```{r echo = FALSE, comment = ""}
-cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample2.Rmd")))
+cat(htmltools::includeText(here::here("rmarkdown", "sample2.Rmd")))
 ```
 ]
 
@@ -31,20 +38,20 @@ It contains three important types of content:
 
 .pull-left[
 ```{r echo = FALSE, comment = ""}
-cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample1.Rmd")))
+cat(htmltools::includeText(here::here("rmarkdown", "sample1.Rmd")))
 ```
 ]
 
 .pull-right[
 ```{r echo = FALSE, comment = ""}
-cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample2.Rmd")))
+cat(htmltools::includeText(here::here( "rmarkdown", "sample2.Rmd")))
 ```
 ]
 
 ---
 ### The output is:
 
-```{r echo = FALSE, child = here::here("rmd", "presentation", "rmarkdown", "sample.Rmd")}
+```{r echo = FALSE, child = here::here("rmarkdown", "sample.Rmd")}
 ```
 
 ---
@@ -54,17 +61,17 @@ cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sampl
 
 * Parameters are useful when you want to regenerate the same report with different inputs
 
-* This is very hadny when you want to generate site reports (i.e. same reports for different sites)
+* This is very handy when you want to generate site reports (i.e. same reports for different sites)
 
 .pull-left[
 ```{r echo = FALSE, comment = ""}
-cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample1_params.Rmd")))
+cat(htmltools::includeText(here::here("rmarkdown", "sample1_params.Rmd")))
 ```
 ]
 
 .pull-right[
 ```{r echo = FALSE, comment = ""}
-cat(htmltools::includeText(here::here("rmd", "presentation", "rmarkdown", "sample2_params.Rmd")))
+cat(htmltools::includeText(here::here("rmarkdown", "sample2_params.Rmd")))
 ```
 ]
 
@@ -140,8 +147,45 @@ p
 ```
 
 ---
-```{r}
-p + gganimate::transition_reveal(year)
+```{r, dpi = 300}
+p <- p + gganimate::transition_reveal(year)
+animate(p)
+```
+
+---
+```{r, echo = FALSE}
+fake_cancer_data <-
+  gapminder %>%
+  mutate(site = str_sub(country, start = 1, end = 5),
+         site_type = if_else(continent == "Europe",
+                             "Private",
+                             "Public"),
+         site_size = pop / 1e6,
+         avg_income = gdpPercap / 1000) %>%
+  select(site, site_type, lifeExp, site_size, avg_income, year) %>%
+  slice_sample(prop = 0.5)
+  
+  
+```
+
+```{r, echo = FALSE, out.height = "60%"}
+graph <-
+  fake_cancer_data %>%
+  dplyr::filter(year >= 1990) %>%
+  ggplot(aes(x = avg_income, y = lifeExp, size = site_size, colour = site_type)) +
+  geom_point(alpha = 0.7) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  facet_wrap(~site_type) +
+  theme_bw() +
+  labs(
+    title = 'Year: {frame_time}', 
+    x = 'Average Income (1000$)', 
+    y = 'Average Surivival (years)') +
+  transition_time(year) +
+  ease_aes('linear')
+
+animate(graph, duration = 10)
 ```
 
 ---
